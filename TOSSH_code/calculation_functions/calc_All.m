@@ -55,11 +55,14 @@ addRequired(ip, 'T_mat', @(T_mat) iscell(T_mat))
 
 % optional input arguments
 addParameter(ip, 'start_water_year', 10, @isnumeric) % when does the water year start? Default: 10
+addParameter(ip, 'max_recessiondays', 1, @isnumeric) % maximum number of days to allow recession after rain
 addParameter(ip, 'plot_results', false, @islogical) % whether to plot results 
 
 parse(ip, Q_mat, t_mat, P_mat, PET_mat, T_mat, varargin{:})
 start_water_year = ip.Results.start_water_year;
+max_recessiondays = ip.Results.max_recessiondays;
 plot_results = ip.Results.plot_results;
+
 
 % initialise arrays
 AC1 = NaN(size(Q_mat,1),1);
@@ -140,6 +143,17 @@ high_Q_duration = NaN(size(Q_mat,1),1);
 high_Q_duration_error_str = strings(size(Q_mat,1),1);
 high_Q_frequency = NaN(size(Q_mat,1),1);
 high_Q_frequency_error_str = strings(size(Q_mat,1),1);
+IE_effect = NaN(size(Q_mat,1),1);
+SE_effect = NaN(size(Q_mat,1),1);
+IE_thresh_signif = NaN(size(Q_mat,1),1);
+IE_thresh = NaN(size(Q_mat,1),1);
+SE_thresh_signif = NaN(size(Q_mat,1),1);
+SE_thresh = NaN(size(Q_mat,1),1);
+SE_slope = NaN(size(Q_mat,1),1);
+Storage_thresh_signif = NaN(size(Q_mat,1),1);
+Storage_thresh = NaN(size(Q_mat,1),1);
+min_Qf_perc = NaN(size(Q_mat,1),1);
+OF_error_str = strings(size(Q_mat,1),1);
 
 % loop over all catchments
 for i = 1:size(Q_mat,1)
@@ -196,6 +210,11 @@ for i = 1:size(Q_mat,1)
     [Q95(i),~,Q95_error_str(i)] = sig_x_percentile(Q_mat{i},t_mat{i},95);
     [high_Q_duration(i),~,high_Q_duration_error_str(i)] = sig_x_Q_duration(Q_mat{i},t_mat{i},'high');
     [high_Q_frequency(i),~,high_Q_frequency_error_str(i)] = sig_x_Q_frequency(Q_mat{i},t_mat{i},'high');
+    [IE_effect(i),SE_effect(i),IE_thresh_signif(i),IE_thresh(i), ...
+        SE_thresh_signif(i),SE_thresh(i),SE_slope(i),Storage_thresh(i), ...
+        Storage_thresh_signif(i),min_Qf_perc(i),~,OF_error_str(i)] ...
+        = sig_EventGraphThresholds(Q_mat{i},t_mat{i},P_mat{i},...
+        'plot_results',plot_results,'max_recessiondays',max_recessiondays);
     
 end
 
@@ -278,5 +297,16 @@ results.high_Q_duration = high_Q_duration;
 results.high_Q_duration_error_str = high_Q_duration_error_str;
 results.high_Q_frequency = high_Q_frequency;
 results.high_Q_frequency_error_str = high_Q_frequency_error_str;
+results.IE_effect = IE_effect;
+results.SE_effect = SE_effect;
+results.IE_thresh_signif = IE_thresh_signif;
+results.SE_thresh_signif = SE_thresh_signif;
+results.IE_thresh = IE_thresh;
+results.SE_thresh = SE_thresh;
+results.SE_slope = SE_slope;
+results.Storage_thresh_signif = Storage_thresh_signif;
+results.Storage_thresh = Storage_thresh;
+results.min_Qf_perc = min_Qf_perc;
+results.OF_error_str = OF_error_str;
 
 end

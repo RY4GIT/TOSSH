@@ -65,41 +65,6 @@ max_recessiondays = ip.Results.max_recessiondays;
 
 % initialise arrays
 
-% Infiltration and saturation excess importance, based on their average
-% coefficients in regression equations to predict event flow
-% characteristics, adapted from qualitative description in Estrany et al.
-% (2010).
-IE_effect = NaN(size(Q_mat,1),1);
-SE_effect = NaN(size(Q_mat,1),1);
-
-% Significance (using likelihood ratio test) and location of a threshold in
-% a plot of quickflow volume vs. maximum intensity, signifying IE process
-% (Ali et al., 2013). IE is indicated when IE_thresh_sig < 0.05.
-IE_thresh_signif = NaN(size(Q_mat,1),1);
-IE_thresh = NaN(size(Q_mat,1),1);
-
-% Significance, location and above-threshold slope of a threshold in a plot
-% of quickflow volume vs. total precipitation. SE is indicated when
-% SE_thresh_sig < 0.05. Where there is no threshold, indicates flow
-% generation from riparian areas (Tani, 1997). Slope above threshold
-% indicates rate at which saturated areas expand (Tani, 1997; Becker and
-% McDonnell 1998).
-SE_thresh_signif = NaN(size(Q_mat,1),1);
-SE_thresh = NaN(size(Q_mat,1),1);
-SE_slope = NaN(size(Q_mat,1),1);
-
-% Significance and location of a threshold in a plot of quickflow volume
-% vs. antecedent precipitation index + total precipitation. SE is indicated
-% when storage_thresh_sig < 0.05 (Ali et al., 2013; McGrath et al., 2007).
-Storage_thresh_signif = NaN(size(Q_mat,1),1);
-Storage_thresh = NaN(size(Q_mat,1),1);
-
-% Minimum quickflow as a percentage of precipitation indicates impermeable
-% area contribution (Becker and McDonnell, 1998).
-min_Qf_perc = NaN(size(Q_mat,1),1);
-
-% variable to store error strings
-OF_error_str = strings(size(Q_mat,1),1);
 
 % loop over all catchments
 for i = 1:size(Q_mat,1)
