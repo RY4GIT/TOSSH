@@ -56,11 +56,17 @@ addRequired(ip, 'T_mat', @(T_mat) iscell(T_mat))
 % optional input arguments
 addParameter(ip, 'start_water_year', 10, @isnumeric) % when does the water year start? Default: 10
 addParameter(ip, 'max_recessiondays', 1, @isnumeric) % maximum number of days to allow recession after rain
+addParameter(ip, 'recession_length', 5, @isnumeric) % length of recessions to find (days)
+addParameter(ip, 'n_start', 1, @isnumeric) % time after peak to start recession (days)
+addParameter(ip, 'eps', 0, @isnumeric) % allowed increase in flow during recession period
 addParameter(ip, 'plot_results', false, @islogical) % whether to plot results 
 
 parse(ip, Q_mat, t_mat, P_mat, PET_mat, T_mat, varargin{:})
 start_water_year = ip.Results.start_water_year;
 max_recessiondays = ip.Results.max_recessiondays;
+recession_length = ip.Results.recession_length;
+n_start = ip.Results.n_start;
+eps = ip.Results.eps;
 plot_results = ip.Results.plot_results;
 
 
@@ -154,8 +160,14 @@ Storage_thresh_signif = NaN(size(Q_mat,1),1);
 Storage_thresh = NaN(size(Q_mat,1),1);
 min_Qf_perc = NaN(size(Q_mat,1),1);
 OF_error_str = strings(size(Q_mat,1),1);
+AverageStorage = NaN(size(Q_mat,1),1);
+AverageStorage_error_str = strings(size(Q_mat,1),1);
+MRC_num_segments = NaN(size(Q_mat,1),1);
+MRC_num_segments_error_str = strings(size(Q_mat,1),1);
+First_Recession_Slope = NaN(size(Q_mat,1),1);
+Mid_Recession_Slope = NaN(size(Q_mat,1),1);
+EventRR_TotalRR_ratio = NaN(size(Q_mat,1),1);
 
-% loop over all catchments
 for i = 1:size(Q_mat,1)
     
     [AC1(i),~,AC1_error_str(i)] = sig_Autocorrelation(Q_mat{i},t_mat{i});
@@ -215,6 +227,15 @@ for i = 1:size(Q_mat,1)
         Storage_thresh_signif(i),min_Qf_perc(i),~,OF_error_str(i)] ...
         = sig_EventGraphThresholds(Q_mat{i},t_mat{i},P_mat{i},...
         'plot_results',plot_results,'max_recessiondays',max_recessiondays);
+    [AverageStorage(i),~,AverageStorage_error_str(i)] = ...
+        sig_StorageFromBaseflow(Q_mat{i},t_mat{i},P_mat{i},PET_mat{i},'start_water_year',start_water_year,'plot_results',plot_results,'recession_length',recession_length,'n_start',n_start,'eps',eps);
+    [MRC_num_segments(i),Segment_slopes,~,MRC_num_segments_error_str(i)] = ...
+        sig_MRC_SlopeChanges(Q_mat{i},t_mat{i},'plot_results',plot_results,'eps',eps,'recession_length',recession_length,'n_start',n_start);
+    First_Recession_Slope(i) = Segment_slopes(1);
+    if length(Segment_slopes) >= 2
+        Mid_Recession_Slope(i) = Segment_slopes(2);
+    end
+    EventRR_TotalRR_ratio(i) = EventRR(i)/TotalRR(i);
     
 end
 
@@ -308,5 +329,10 @@ results.Storage_thresh_signif = Storage_thresh_signif;
 results.Storage_thresh = Storage_thresh;
 results.min_Qf_perc = min_Qf_perc;
 results.OF_error_str = OF_error_str;
-
+results.AverageStorage = AverageStorage;
+results.MRC_num_segments = MRC_num_segments;
+results.MRC_num_segments_error_str = MRC_num_segments_error_str;
+results.First_Recession_Slope = First_Recession_Slope;
+results.Mid_Recession_Slope = Mid_Recession_Slope;
+results.EventRR_TotalRR_ratio = EventRR_TotalRR_ratio;
 end
