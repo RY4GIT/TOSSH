@@ -163,7 +163,7 @@ Q(iszero) = 0;
 
 % optional plotting
 if plot_results
-    fig = figure('Position',[100 100 700 250]); hold on;
+    fig = figure('Position',[300 300 700*2 250*2]); hold on;
     title('Selected recession segments')
     h0 = plot(t,Q,'k','linewidth',1.5);
     for i = 1:size(flow_section,1)
