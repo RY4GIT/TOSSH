@@ -1,6 +1,6 @@
 function [IE_effect, SE_effect, IE_thresh_signif, IE_thresh, ...
     SE_thresh_signif, SE_thresh, SE_slope, ...
-    Storage_thresh, Storage_thresh_signif, min_Qf_perc, ...
+    Storage_thresh, Storage_thresh_signif, min_Qf_perc, R_Pvol_RC, R_Pint_RC,...
     error_flag, error_str, fig_handles] = sig_EventGraphThresholds(Q,t,P,varargin)
 %%   sig_EventGraphThresholds calculates a variety of signatures related to saturation and infiltration excess flow.
 %   Calculates a variety of signatures related to saturation excess (SE)
@@ -68,6 +68,13 @@ function [IE_effect, SE_effect, IE_thresh_signif, IE_thresh, ...
 %   Indicates impermeable area contribution (qualitative description in
 %   Becker and McDonnell, 1998).
 %
+%   Event signatures from Wu et al., (2021)
+%   R_Pvol_RC: Pearson correlation beween total precipitation vs. normalized quick flow 
+%   (= event runoff coefficient = (quickflow volume / total P))
+%   Stormflow processes which are sensitive to rainfall volume, for example, SSF2, SOF, SSF1, and GWF
+%   R_Pint_RC: Pearson correlation beween average precipitation intensity vs. normalized quick flow 
+%   Related to Stormflow processes which are sensitive to rainfall intensity,  for example, HOF
+%
 %   error_flag: 0 (no error), 1 (warning), 2 (error in data check), 3
 %       (error in signature calculation)
 %   error_str: string contraining error description
@@ -111,7 +118,11 @@ function [IE_effect, SE_effect, IE_thresh_signif, IE_thresh, ...
 %   Pfister, L., 2015. Towards more systematic perceptual model
 %   development: a case study using 3 Luxembourgish catchments.
 %   Hydrological Processes, 29(12), pp.2731-2750.
-%
+%   Wu, S., Zhao, J., Wang, H., & Sivapalan, M. (2021). 
+%   Regional patterns and physical controls of streamflow generation across 
+%   the conterminous United States. Water Resources Research, 57(6), 
+%   e2020WR028086. https://doi.org/10.1029/2020wr028086
+
 %   Copyright (C) 2020
 %   This software is distributed under the GNU Public License Version 3.
 %   See <https://www.gnu.org/licenses/gpl-3.0.en.html> for details.
@@ -367,6 +378,26 @@ IE_thresh = thresh_mi_qf;
 Storage_thresh_signif = p_value_st_qf;
 Storage_thresh = thresh_st_qf;
 
+%% Add Wu et al. correlations for SE and IE
+
+% Event Runoff coefficients = quickflow volume / total P
+rcq = event_array(:,7)./event_array(:,1);
+
+% Use Wu et al definition of significant events
+% Ratio of start and end Q to peak is less than BFI
+bfi = sum(B,'omitnan')/sum(Q,'omitnan');
+start_ratio = Q(stormarray(:,1))./event_array(:,8);
+end_ratio = Q(stormarray(:,3))./event_array(:,8);
+large_events = and(start_ratio < bfi, end_ratio < bfi);
+
+if sum(large_events)>2
+%Spearman rank Corr of total P and average intensity with RC
+    [R_Pvol_RC,~] = corr(event_array(large_events,1), rcq(large_events), 'Type', 'Spearman');
+    [R_Pint_RC,~] = corr(event_array(large_events,2), rcq(large_events), 'Type', 'Spearman');
+else
+   R_Pvol_RC = NaN;
+   R_Pint_RC = NaN;
+end
 %% optional plotting
 if plot_results
     

@@ -184,6 +184,8 @@ SE_slope = NaN(size(Q_mat,1),1);
 Storage_thresh_signif = NaN(size(Q_mat,1),1);
 Storage_thresh = NaN(size(Q_mat,1),1);
 min_Qf_perc = NaN(size(Q_mat,1),1);
+R_Pvol_RC = NaN(size(Q_mat,1),1);
+R_Pint_RC = NaN(size(Q_mat,1),1);
 OF_error_str = strings(size(Q_mat,1),1);
 AverageStorage = NaN(size(Q_mat,1),1);
 AverageStorage_error_str = strings(size(Q_mat,1),1);
@@ -273,7 +275,7 @@ for i = 1:size(Q_mat,1)
     [high_Q_frequency(i),~,high_Q_frequency_error_str(i)] = sig_x_Q_frequency(Q_mat{i},t_mat{i},'high');
     [IE_effect(i),SE_effect(i),IE_thresh_signif(i),IE_thresh(i), ...
         SE_thresh_signif(i),SE_thresh(i),SE_slope(i),Storage_thresh(i), ...
-        Storage_thresh_signif(i),min_Qf_perc(i),~,OF_error_str(i)] ...
+        Storage_thresh_signif(i),min_Qf_perc(i),R_Pvol_RC(i), R_Pint_RC(i),~,OF_error_str(i)] ...
         = sig_EventGraphThresholds(Q_mat{i},t_mat{i},P_mat{i},...
         'min_termination', min_termination, ...
         'min_duration', min_duration, ...
@@ -385,6 +387,8 @@ results.SE_slope = SE_slope;
 results.Storage_thresh_signif = Storage_thresh_signif;
 results.Storage_thresh = Storage_thresh;
 results.min_Qf_perc = min_Qf_perc;
+results.R_Pvol_RC = R_Pvol_RC;
+results.R_Pint_RC = R_Pint_RC;
 results.OF_error_str = OF_error_str;
 results.AverageStorage = AverageStorage;
 results.MRC_num_segments = MRC_num_segments;
