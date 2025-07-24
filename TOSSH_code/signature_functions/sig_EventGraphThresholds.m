@@ -391,9 +391,9 @@ end_ratio = Q(stormarray(:,3))./event_array(:,8);
 large_events = and(start_ratio < bfi, end_ratio < bfi);
 
 if sum(large_events)>2
-%Spearman rank Corr of total P and average intensity with RC
+%Spearman rank Corr of total P and maximum intensity with RC
     [R_Pvol_RC,~] = corr(event_array(large_events,1), rcq(large_events), 'Type', 'Spearman');
-    [R_Pint_RC,~] = corr(event_array(large_events,2), rcq(large_events), 'Type', 'Spearman');
+    [R_Pint_RC,~] = corr(event_array(large_events,3), rcq(large_events), 'Type', 'Spearman');
 else
    R_Pvol_RC = NaN;
    R_Pint_RC = NaN;
