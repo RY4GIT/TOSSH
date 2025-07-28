@@ -488,4 +488,24 @@ if plot_results
     title('Quickflow vs intensity per season') % Wrede 2015
     fig_handles.EventGraphThresholdsSeasons = fig2;
     
+
+    % plot Spearman rank correlation of total P and max intensity against
+    fig3 = figure('Position',[100 100 700 300]);
+    subplot(1,2,1)
+    title('R (Pvol, RC)')
+    hold on
+    scatter(event_array(large_events,1), rcq(large_events), 'filled','MarkerFaceAlpha',0.5)
+    xlabel('Event total [mm]')
+    ylabel('Event runoff coeff. [-]')
+    legend(['R_{Pvol\_RC} = ', num2str(round(R_Pvol_RC,2))], 'Location', 'best')
+
+    subplot(1,2,2)
+    title('R (Pint, RC)')
+    hold on
+    scatter(event_array(large_events,3), rcq(large_events), 'filled','MarkerFaceAlpha',0.5)
+    xlabel('Event max intensity [mm/timestep]')
+    ylabel('Event runoff coeff. [-]')
+    legend(['R_{Pint\_RC} = ', num2str(round(R_Pint_RC,2))], 'Location', 'best')
+
+    fig_handles.EventGraphThresholds = fig3;
 end
